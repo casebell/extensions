@@ -1,0 +1,43 @@
+{
+    "name": "QA Agent",
+    "version": "0.8",
+    "icons": {
+        "16": "/img/icons/icon_16.png",
+        "48": "/img/icons/icon_48.png",
+        "128": "/img/icons/icon_128.png"
+    },
+
+    "description": "QA Agent is FREE web based IDE for development of web tests",
+    "permissions": [
+        "tabs", "http://*/*/", "https://*/*/", "storage"
+    ],
+
+    "background": {
+        "scripts": [
+        "/js/settings.js",
+        "/js/logger.js",
+        "/js/message.js",
+        "/js/external/jquery.js",
+        "/js/tabMap.js",
+        "/js/background.js"
+        ],
+        "persistent": false
+    },
+
+    "content_scripts": [{
+        "matches": ["<all_urls>"],
+        "js": [
+            "/js/settings.js",
+            "/js/logger.js",
+            "/js/external/jquery.js",
+            "/js/message.js",
+            "/js/extensions.js",
+            "/js/verifier.js",
+            "/js/messageQueue.js",
+            "/js/content_script.js"
+        ],
+        "run_at": "document_start"
+    }],
+
+    "manifest_version": 2
+}
