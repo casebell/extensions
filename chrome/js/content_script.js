@@ -89,7 +89,7 @@ $(document).ready(function() {
             msgQueue.add(message);
 
             switch (msg.command) {
-                case 'end':
+                case 'open':
                     {
                         sendMessageToBgs();
                     }
@@ -97,7 +97,7 @@ $(document).ready(function() {
 
                 default:
                     {
-
+                        
                     }
                     break;
             }
@@ -133,11 +133,11 @@ $(document).ready(function() {
 
                 switch (msg.command) {
                     case 'open':
-                    case 'end':
                         {
                             sendMessageToBgs(msg);
                         }
                         break;
+
 
                     default:
                         {

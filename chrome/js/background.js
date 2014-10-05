@@ -48,7 +48,7 @@ function openUrl(msg, masterTabId) {
         chrome.tabs.create({
             url: url
         }, function(tab) {
-            masterSlaveMap.add(masterTabId, tab.id);
+            masterSlaveMap.add(masterTabId, tab.id, msg.tcid);
             slaveCurrentMessageMap[tab.id] = msg;
         });
     }
@@ -68,7 +68,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         logger.log(tabId + ": " + changeInfo.status);
 
         //Check whether master tab with particular slave id exists
-        if (masterSlaveMap.getMaster(tabId) !== -1 &&
+        if (masterSlaveMap.getMasterBySlave(tabId) !== -1 &&
             typeof(message) !== 'undefined') {
             //Check whether the slave is loaded completely
             if (changeInfo.status === 'complete') {
@@ -85,7 +85,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
                     case 'waitBrowserReady':
                         {
-                            sendMessage(slaveCurrentMessageMap[tabId], masterSlaveMap.getMaster(tabId));
+                            sendMessage(slaveCurrentMessageMap[tabId], masterSlaveMap.getMasterById(tabId));
                             slaveCurrentMessageMap.splice(tabId, 1);
                         }
                         break;
@@ -104,7 +104,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 //Inject 'code' in the chrome tab with predefined 'tabId'
 function injectCode(masterTabId, msg) {
 
-    var slaveTabId = masterSlaveMap.getSlave(masterTabId);
+    var slaveTabId = masterSlaveMap.getSlaveById(msg.tcid);
 
     if (slaveTabId === -1) {
         logger.log('slaveTabId is undefined');
@@ -116,7 +116,7 @@ function injectCode(masterTabId, msg) {
 
 function waitBrowserReady(masterTabId, msg) {
 
-    var slaveTabId = masterSlaveMap.getSlave(masterTabId);
+    var slaveTabId = masterSlaveMap.getSlaveById(msg.tcid);
 
     if (slaveTabId === -1) {
         logger.log('slaveTabId is undefined');
@@ -140,7 +140,7 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
             new Message(msg, TAG).parse(senderTabId + ' BGS INCOME');
 
             if (msg.isMaster === true) {
-                var slaveTabId = masterSlaveMap.getSlave(senderTabId);
+                var slaveTabId = masterSlaveMap.getSlaveById(msg.tcid);
 
                 switch (msg.command) {
                     case 'open':
@@ -189,7 +189,13 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
                         break;
                 }
             } else {
-                var masterTabId = masterSlaveMap.getMaster(senderTabId);
+                var masterTabId = masterSlaveMap.getMasterById(msg.tcid);
+                
+                if(masterTabId == -1)
+                {
+                    logger.log('##### Sender id ' + senderTabId);
+                }
+
                 sendMessage(msg, masterTabId);
             }
         }
